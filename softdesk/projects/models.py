@@ -47,16 +47,16 @@ class Issues(models.Model):
     nature = models.CharField(max_length=2, choices=Nature.choices, default=None)
     progression = models.CharField(max_length=2, choices=Progression.choices, default=Progression.TO_DO)
 
-class Comment (models.Model):
+class Comments (models.Model):
     author = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='comment_author', on_delete=models.CASCADE)
     created_time = models.DateTimeField(auto_now_add=True, null=True)
-    projects = models.ForeignKey(Project, related_name='comment_projects', on_delete=models.CASCADE, default=None, null=True)
+    issue = models.ForeignKey(Issues, related_name='comment_issue', on_delete=models.CASCADE, default=None, null=True)
 
 class Contributor(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='contributor_user', on_delete=models.CASCADE)
     projects = models.ManyToManyField(Project, related_name='contributor_projects', blank=True)
     issues = models.ManyToManyField(Issues, related_name='contributor_issues', blank=True)
-    comments = models.ManyToManyField(Comment, related_name='contributor_comments', blank=True)
+    comments = models.ManyToManyField(Comments, related_name='contributor_comments', blank=True)
 
 
 

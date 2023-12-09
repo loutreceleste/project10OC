@@ -4,15 +4,15 @@ from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin
 import datetime
 
 class UserManager(BaseUserManager):
-    def create_user(self, username, password=None):
+    def create_user(self, username, password=None, **extra_fields):
         if not username:
             raise ValueError("Le nom d'utilisateur est obligatoire.")
-        user = self.model(username=username)
+        user = self.model(username=username, **extra_fields)
         user.set_password(password)
         user.save()
         return user
 
-    def create_superuser(self, username, password=None, **extra_fields):
+    def create_superuser(self, username, password=None):
         if not username:
             raise ValueError("Le nom d'utilisateur est obligatoire.")
         user = self.model(username=username)

@@ -1,5 +1,5 @@
-from projects.serializers import ProjectSerializer, ContributorSerializer, IssuesSerializer
-from projects.models import Project, Contributor, Issues
+from projects.serializers import ProjectSerializer, ContributorSerializer, IssuesSerializer, CommentsSerializer
+from projects.models import Project, Contributor, Issues, Comments
 
 from rest_framework.exceptions import ValidationError
 from rest_framework.response import Response
@@ -32,8 +32,6 @@ class ProjectViewSet(ModelViewSet):
 
                 return Response(serialized_data)
 
-
-
 class ContributorViewSet(ModelViewSet):
         serializer_class = ContributorSerializer
         def get_queryset(self):
@@ -42,7 +40,7 @@ class ContributorViewSet(ModelViewSet):
         def perform_create(self, serializer):
                 if self.request.user.is_anonymous:
                         raise ValidationError("Vous devez être authentifié pour créer un contributeur.")
-                serializer.save()
+                serializer.save(author=self.request.user)
 
         def list(self, request, project_id=None):
                 if project_id is not None:
@@ -60,5 +58,24 @@ class IssuesViewSet(ModelViewSet):
 
         def perform_create(self, serializer):
                 if self.request.user.is_anonymous:
-                        raise ValidationError("Vous devez être authentifié pour créer un contributeur.")
-                serializer.save()
+                        raise ValidationError("Vous devez être authentifié pour créer un problème.")
+                serializer.save(author=self.request.user)
+
+        def list(self, request, project_id=None):
+                if project_id is not None:
+                        issues = Issues.objects.filter(projects__id=project_id)
+                        users = issues.values_list('user__username', flat=True)
+                        issues_list = list(users)
+                        return Response({"Issues": issues_list})
+                else:
+                        return super().list(request)
+
+class CommentsViewSet(ModelViewSet):
+        serializer_class = CommentsSerializer
+        def get_queryset(self):
+                return Comments.objects.all()
+
+        def perform_create(self, serializer):
+                if self.request.user.is_anonymous:
+                        raise ValidationError("Vous devez être authentifié pour créer un commentaire.")
+                serializer.save(author=self.request.user)
