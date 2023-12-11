@@ -17,8 +17,10 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('api-auth/', include('rest_framework.urls')),
     path('api/', include(router.urls)),
+
     path('api/projects/<int:project_id>/contributors/', ContributorViewSet.as_view({'get': 'list'}), name='project-contributors'),
     path('api/projects/<int:project_id>/issues/', IssuesViewSet.as_view({'get': 'list'}), name='project-issues'),
-    path('api/contributors/<int:project_id>/projects/', ProjectViewSet.as_view({'get': 'list'}), name='contributors-project'),
+
+    path('api/contributors/<int:contributor_id>/issues/', ContributorViewSet.as_view({'get': 'get_issues'}), name='contributors-issues'),
 
 ]
