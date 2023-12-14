@@ -14,17 +14,17 @@ class CommentsSerializer(ModelSerializer):
         fields = '__all__'
 
 class IssuesSerializer(serializers.ModelSerializer):
-    comment_issue = CommentsSerializer(many=True, read_only=True)
+    comments_issues = CommentsSerializer(many=True, read_only=True)
     class Meta:
         model = Issues
         fields = ('id', 'author', 'name', 'projects', 'created_time', 'nature', 'priority', 'progression',
-                  'description', 'contributor_issues', 'comment_issue')
+                  'description', 'contributor_issues', 'comments_issues')
 
 class ProjectSerializer(serializers.ModelSerializer):
-    contributor_projects = ContributorSerializer(many=True, read_only=True)
-    issue_project = IssuesSerializer (many=True, read_only=True)
+    contributors_projects = ContributorSerializer(many=True, read_only=True)
+    issues_projects = IssuesSerializer (many=True, read_only=True)
 
     class Meta:
         model = Project
-        fields = ('id', 'author', 'name', 'created_time', 'type', 'description', 'contributor_projects', 'issue_project')
+        fields = ('id', 'author', 'name', 'created_time', 'type', 'description', 'contributors_projects', 'issues_projects')
 
