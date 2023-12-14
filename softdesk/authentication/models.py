@@ -7,6 +7,7 @@ class UserManager(BaseUserManager):
     def create_user(self, username, password=None, **extra_fields):
         if not username:
             raise ValueError("Le nom d'utilisateur est obligatoire.")
+        extra_fields.setdefault('is_active', True)
         user = self.model(username=username, **extra_fields)
         user.set_password(password)
         user.save()
@@ -31,6 +32,7 @@ class User (AbstractBaseUser, PermissionsMixin):
     is_superuser = models.BooleanField(default=False)
     created_time = models.DateField(auto_now_add=True)
     last_login = models.DateTimeField(auto_now=True)
+    is_active = models.BooleanField(default=True)
 
     objects = UserManager()
 

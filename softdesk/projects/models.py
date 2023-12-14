@@ -10,8 +10,7 @@ class Project(models.Model):
         IOS = "IO", _("IOs")
         ANDRIOD = "AN", _("Android")
 
-    author = models.ForeignKey('Contributor', related_name='project_author', on_delete=models.CASCADE,
-                               editable=False, null=True)
+    author = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, editable=False, null=True)
     created_time = models.DateTimeField(auto_now_add=True, null=True)
     type = models.CharField(max_length=2, choices=Type.choices, default=None)
     contributors = models.ManyToManyField('Contributor', related_name='project_contributors', blank=True)
@@ -38,22 +37,21 @@ class Issues(models.Model):
         IN_PROGRESS = "IP", _("In progress")
         FINISHED = "FI", _("Finished")
 
-    author = models.ForeignKey('Contributor', related_name='issue_author', on_delete=models.CASCADE,
-                               editable=False, null=True)
+    author = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='issue_author', on_delete=models.CASCADE, editable=False, null=True)
     created_time = models.DateTimeField(auto_now_add=True, null=True)
     projects = models.ForeignKey(Project, related_name='issue_project', on_delete=models.CASCADE, default=None,
                                  null=True)
 
     name = models.fields.CharField(max_length=100, unique=True, default=None)
     description = models.fields.CharField(max_length=500, default=None)
+    comments = models.ManyToManyField('Comments', related_name='issue_comments', blank=True)
 
     priority = models.CharField(max_length=2, choices=Priority.choices, default=None)
     nature = models.CharField(max_length=2, choices=Nature.choices, default=None)
     progression = models.CharField(max_length=2, choices=Progression.choices, default=Progression.TO_DO)
 
 class Comments (models.Model):
-    author = models.ForeignKey('Contributor', related_name='comment_author', on_delete=models.CASCADE,
-                               editable=False)
+    author = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='comment_author', on_delete=models.CASCADE, editable=False, null=True)
     created_time = models.DateTimeField(auto_now_add=True, null=True)
     issue = models.ForeignKey(Issues, related_name='comment_issue', on_delete=models.CASCADE, default=None, null=True)
     description = models.fields.CharField(max_length=500, default=None)
@@ -65,6 +63,8 @@ class Comments (models.Model):
     )
 
 class Contributor(models.Model):
+    author = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='contributor_author', on_delete=models.CASCADE,
+                               editable=False, null=True)
     user = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='contributor_user', on_delete=models.CASCADE)
     created_time = models.DateTimeField(auto_now_add=True, null=True)
     projects = models.ManyToManyField(Project, related_name='contributor_projects', blank=True)

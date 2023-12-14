@@ -6,6 +6,7 @@ from authentication.serializers import UserSerializer
 from rest_framework.exceptions import ValidationError
 from rest_framework.viewsets import ModelViewSet
 
+
 class UsersViewset(ModelViewSet):
         serializer_class = UserSerializer
         def get_queryset(self):
@@ -23,5 +24,7 @@ class UsersViewset(ModelViewSet):
 
                 if age < 15:
                         raise ValidationError("Vous devez avoir au moins 15 ans pour vous enregistrer.")
+
+                validated_data['is_active'] = True
 
                 serializer.save()

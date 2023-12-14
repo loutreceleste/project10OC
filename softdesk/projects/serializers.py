@@ -6,7 +6,7 @@ from rest_framework import serializers
 class ContributorSerializer(ModelSerializer):
     class Meta:
         model = Contributor
-        fields = ('id', 'user', 'projects')
+        fields = ('id', 'user', 'author', 'projects')
 
 class CommentsSerializer(ModelSerializer):
     class Meta:

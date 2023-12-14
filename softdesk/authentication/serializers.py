@@ -5,4 +5,4 @@ class UserSerializer(ModelSerializer):
     class Meta:
          model = User
          fields = ('id', 'username', 'password', 'can_be_contacted', 'can_data_be_shared', 'birthday', 'created_time',
-                   'last_login')
+                   'last_login', 'is_active')
