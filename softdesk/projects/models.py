@@ -17,7 +17,6 @@ class Project(models.Model):
     name = models.fields.CharField(max_length=100, unique=True)
     description = models.fields.CharField(max_length=500)
 
-
     def __str__(self):
         return self.name
 

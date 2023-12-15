@@ -1,3 +1,5 @@
+from django.db.models import Q
+
 from projects.serializers import ProjectSerializer, ContributorSerializer, IssuesSerializer, CommentsSerializer
 from projects.models import Project, Contributor, Issues, Comments
 from projects.permissions import IsOwnerOrReadOnly
@@ -6,13 +8,17 @@ from rest_framework.exceptions import ValidationError
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.viewsets import ModelViewSet
 
+from projects.permissions import IsContributorOfProject
+
 
 class ProjectViewSet(ModelViewSet):
     serializer_class = ProjectSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, IsOwnerOrReadOnly]
 
     def get_queryset(self):
-        return Project.objects.all()
+        user = self.request.user
+        contributor = Contributor.objects.get(user=user)
+        return Project.objects.filter(Q(author=user) | Q(contributors=contributor)).distinct()
 
     def perform_create(self, serializer):
         if self.request.user.is_anonymous:
@@ -21,7 +27,7 @@ class ProjectViewSet(ModelViewSet):
 
 class ContributorViewSet(ModelViewSet):
     serializer_class = ContributorSerializer
-    permission_classes = [IsAuthenticated, IsOwnerOrReadOnly]
+    permission_classes = [IsAuthenticated, IsOwnerOrReadOnly, IsContributorOfProject]
 
     def get_queryset(self):
         return Contributor.objects.all()
@@ -57,7 +63,7 @@ class CommentsViewSet(ModelViewSet):
 
 class ProjectsIssuesViewSet(ModelViewSet):
     serializer_class = IssuesSerializer
-    permission_classes = [IsAuthenticated, IsOwnerOrReadOnly]
+    permission_classes = [IsAuthenticated, IsOwnerOrReadOnly, IsContributorOfProject]
 
     def get_queryset(self):
         project_pk = self.kwargs['project_pk']
@@ -65,7 +71,7 @@ class ProjectsIssuesViewSet(ModelViewSet):
 
 class ProjectsContributorsViewSet(ModelViewSet):
     serializer_class = ContributorSerializer
-    permission_classes = [IsAuthenticated, IsOwnerOrReadOnly]
+    permission_classes = [IsAuthenticated, IsOwnerOrReadOnly, IsContributorOfProject]
 
     def get_queryset(self):
         project_pk = self.kwargs['project_pk']
@@ -73,7 +79,7 @@ class ProjectsContributorsViewSet(ModelViewSet):
 
 class IssuesCommentsViewSet(ModelViewSet):
     serializer_class = CommentsSerializer
-    permission_classes = [IsAuthenticated, IsOwnerOrReadOnly]
+    permission_classes = [IsAuthenticated, IsOwnerOrReadOnly, IsContributorOfProject]
 
     def get_queryset(self):
         project_pk = self.kwargs['project_pk']

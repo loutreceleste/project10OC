@@ -4,13 +4,17 @@ from authentication.models import User
 from authentication.serializers import UserSerializer
 
 from rest_framework.exceptions import ValidationError
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.viewsets import ModelViewSet
 
 
 class UsersViewset(ModelViewSet):
         serializer_class = UserSerializer
+        permission_classes = [IsAuthenticated]
+
         def get_queryset(self):
-                return User.objects.all()
+                user = self.request.user
+                return User.objects.filter(id=user.id) if user.is_authenticated else User.objects.none()
 
         def perform_create(self, serializer):
                 validated_data = serializer.validated_data
