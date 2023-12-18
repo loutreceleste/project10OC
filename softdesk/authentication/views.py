@@ -14,7 +14,9 @@ class UsersViewset(ModelViewSet):
 
         def get_queryset(self):
                 user = self.request.user
-                return User.objects.filter(id=user.id) if user.is_authenticated else User.objects.none()
+                if user.is_authenticated:
+                        return User.objects.filter(id=user.id)
+                else: User.objects.none()
 
         def perform_create(self, serializer):
                 validated_data = serializer.validated_data
