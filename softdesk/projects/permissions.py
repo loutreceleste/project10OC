@@ -1,10 +1,8 @@
+from django.shortcuts import get_object_or_404
 from rest_framework import permissions
 
 from projects.models import Project
 
-from projects.models import Contributor
-
-from projects.models import Issues
 
 
 class IsOwnerOrReadOnly(permissions.BasePermission):
@@ -15,45 +13,50 @@ class IsOwnerOrReadOnly(permissions.BasePermission):
         return obj.author == request.user
 
 
-class IsContributorOfProject(permissions.BasePermission):
+class IsAuthorOrReadOnly(permissions.BasePermission):
+    message = "Vous n'êtes pas l'auteur de cette ressource."
+
     def has_permission(self, request, view):
-        if not request.user.is_authenticated:
-            return False
 
-        try:
-            contributor = Contributor.objects.filter(user=request.user).first()
-        except Contributor.DoesNotExist:
-            return False
+        if request.method in permissions.SAFE_METHODS:
+            return True
 
-        if contributor:
-            project_id = view.kwargs.get('project_id')
-            is_contributor = Project.objects.filter(pk=project_id, contributors=contributor).exists()
-            return is_contributor
+        project_id = view.kwargs.get('project_pk')
+        project = get_object_or_404(Project, id=project_id)
 
-        return False
+        return project.author == request.user
+
+    def has_object_permission(self, request, view, obj):
+
+        if request.method in permissions.SAFE_METHODS:
+            return True
+
+        project_id = view.kwargs.get('project_pk')
+        project = get_object_or_404(Project, id=project_id)
+
+        return project.author == request.user or request.method in permissions.SAFE_METHODS
 
 
-class IsContributorOfIssueProject(permissions.BasePermission):
+class IsContributorOrReadOnly(permissions.BasePermission):
+    message = "Vous n'êtes pas contributeur de ce projet."
+
     def has_permission(self, request, view):
-        issue_id = view.kwargs.get('issue_pk')
-        try:
-            issue = Issues.objects.get(pk=issue_id)
-        except Issues.DoesNotExist:
-            return False
+        if request.method in permissions.SAFE_METHODS:
+            return True
 
-        return issue.projects.contributors.filter(user=request.user).exists()
+        project_id = view.kwargs.get('project_pk')
+        project = get_object_or_404(Project, id=project_id)
 
-class IsPartOfProject(permissions.BasePermission):
-    def has_permission(self, request, view):
-        if not request.user.is_authenticated:
-            return False
+        # Vérifier si l'utilisateur est un contributeur du projet
+        return project.contributor_projects.filter(user=request.user).exists()
 
-        issue_id = view.kwargs.get('issue_pk')
-        try:
-            issue = Issues.objects.get(pk=issue_id)
-        except Issues.DoesNotExist:
-            return False
+    def has_object_permission(self, request, view, obj):
+        if request.method in permissions.SAFE_METHODS:
+            return True
 
-        project = issue.projects
+        project_id = view.kwargs.get('project_pk')
+        project = get_object_or_404(Project, id=project_id)
 
-        return project.contributors.filter(user=request.user).exists()
+        # Vérifier si l'utilisateur est un contributeur du projet ou s'il s'agit d'une action de lecture
+        return project.contributor_projects.filter(user=request.user).exists() or request.method in permissions.SAFE_METHODS
+

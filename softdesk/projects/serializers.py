@@ -18,7 +18,7 @@ class IssuesSerializer(serializers.ModelSerializer):
     class Meta:
         model = Issues
         fields = ('id', 'author', 'name', 'projects', 'created_time', 'nature', 'priority', 'progression',
-                  'description', 'contributor_issues', 'comments_issues')
+                  'description', 'comments_issues')
 
 class ProjectSerializer(serializers.ModelSerializer):
     contributors_projects = ContributorSerializer(many=True, read_only=True)

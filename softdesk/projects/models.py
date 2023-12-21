@@ -13,7 +13,6 @@ class Project(models.Model):
     author = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, editable=False, null=True)
     created_time = models.DateTimeField(auto_now_add=True, null=True)
     type = models.CharField(max_length=2, choices=Type.choices, default=None)
-    contributors = models.ManyToManyField('Contributor', related_name='project_contributors', blank=True)
     name = models.fields.CharField(max_length=100, unique=True)
     description = models.fields.CharField(max_length=500)
 
@@ -66,7 +65,4 @@ class Contributor(models.Model):
                                editable=False, null=True)
     user = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='contributor_user', on_delete=models.CASCADE)
     created_time = models.DateTimeField(auto_now_add=True, null=True)
-    projects = models.ManyToManyField(Project, related_name='contributor_projects', blank=True)
-    issues = models.ManyToManyField(Issues, related_name='contributor_issues', blank=True,
-                                    editable=False)
-    comments = models.ManyToManyField(Comments, related_name='contributor_comments', blank=True, editable=False)
+    projects = models.ForeignKey(Project, related_name='contributor_projects', blank=True, on_delete=models.CASCADE)
