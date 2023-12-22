@@ -1,6 +1,8 @@
 from rest_framework.serializers import ModelSerializer
-from projects.models import Project, Contributor, Comments, Issues
 from rest_framework import serializers
+
+from ressources.models import Project, Contributor, Comments, Issues
+from authentication.models import User
 
 
 class ContributorSerializer(ModelSerializer):
@@ -15,10 +17,11 @@ class CommentsSerializer(ModelSerializer):
 
 class IssuesSerializer(serializers.ModelSerializer):
     comments_issues = CommentsSerializer(many=True, read_only=True)
+    contributors = serializers.PrimaryKeyRelatedField(many=True, queryset=User.objects.all())
     class Meta:
         model = Issues
-        fields = ('id', 'author', 'name', 'projects', 'created_time', 'nature', 'priority', 'progression',
-                  'description', 'comments_issues')
+        fields = ['id', 'name', 'author', 'nature', 'priority', 'progression', 'description', 'created_time',
+                  'contributors', 'comments_issues']
 
 class ProjectSerializer(serializers.ModelSerializer):
     contributors_projects = ContributorSerializer(many=True, read_only=True)

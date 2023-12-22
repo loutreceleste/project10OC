@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.urls import path, include
 
-from projects.views import ProjectViewSet, ProjectsIssuesViewSet, IssuesCommentsViewSet, ProjectsContributorsViewSet
+from ressources.views import ProjectViewSet, ProjectsIssuesViewSet, IssuesCommentsViewSet, ProjectsContributorsViewSet
 from authentication.views import UsersViewset
 
 from rest_framework_nested.routers import NestedSimpleRouter

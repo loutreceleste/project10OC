@@ -1,8 +1,7 @@
 from django.shortcuts import get_object_or_404
 from rest_framework import permissions
 
-from projects.models import Project
-
+from ressources.models import Project
 
 
 class IsOwnerOrReadOnly(permissions.BasePermission):
@@ -47,7 +46,6 @@ class IsContributorOrReadOnly(permissions.BasePermission):
         project_id = view.kwargs.get('project_pk')
         project = get_object_or_404(Project, id=project_id)
 
-        # Vérifier si l'utilisateur est un contributeur du projet
         return project.contributor_projects.filter(user=request.user).exists()
 
     def has_object_permission(self, request, view, obj):
@@ -57,6 +55,5 @@ class IsContributorOrReadOnly(permissions.BasePermission):
         project_id = view.kwargs.get('project_pk')
         project = get_object_or_404(Project, id=project_id)
 
-        # Vérifier si l'utilisateur est un contributeur du projet ou s'il s'agit d'une action de lecture
         return project.contributor_projects.filter(user=request.user).exists() or request.method in permissions.SAFE_METHODS
 

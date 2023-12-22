@@ -2,6 +2,7 @@ from datetime import date
 
 from authentication.models import User
 from authentication.serializers import UserSerializer
+from authentication.permissions import IsSelfOrReadOnly
 
 from rest_framework.exceptions import ValidationError
 from rest_framework.permissions import IsAuthenticated
@@ -10,7 +11,7 @@ from rest_framework.viewsets import ModelViewSet
 
 class UsersViewset(ModelViewSet):
         serializer_class = UserSerializer
-        permission_classes = [IsAuthenticated]
+        permission_classes = [IsAuthenticated, IsSelfOrReadOnly]
 
         def get_queryset(self):
                 user = self.request.user

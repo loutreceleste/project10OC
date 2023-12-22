@@ -1,7 +1,7 @@
 from django.contrib.auth.base_user import BaseUserManager
 from django.db import models
 from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin
-from datetime import datetime, timedelta
+from datetime import datetime
 
 class UserManager(BaseUserManager):
     def create_user(self, username, password=None, **extra_fields):
@@ -51,10 +51,22 @@ class User (AbstractBaseUser, PermissionsMixin):
 
     objects = UserManager()
 
-    def age(self):
-
+    def save(self, *args, **kwargs):
         if self.birthday:
-            return int((datetime.date.today() - self.birthday).days // 365.25)
+            today = datetime.now().date()
+            age_limit = today.replace(year=today.year - 15)
+
+            if self.birthday > age_limit:
+                raise ValueError("L'utilisateur doit avoir au moins 15 ans.")
+
+        super().save(*args, **kwargs)
+
+    def age(self):
+        if self.birthday:
+            current_date = datetime.now().date()
+            days_passed = current_date - self.birthday
+            years_passed = days_passed.days // 365.25
+            return int(years_passed)
         else:
             return None
 
