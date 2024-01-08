@@ -1,10 +1,11 @@
-from datetime import date
+from datetime import date, datetime
 from authentication.models import User
 from authentication.serializers import UserSerializer
 from authentication.permissions import IsSelfOrReadOnly
 from rest_framework.exceptions import ValidationError
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.viewsets import ModelViewSet
+from django.contrib.auth.hashers import make_password
 
 # ViewSet for handling User model operations
 class UsersViewset(ModelViewSet):
@@ -28,9 +29,12 @@ class UsersViewset(ModelViewSet):
         if birthday is None:
             raise ValidationError("User's birthday is not defined.")
 
+        # Convertir la chaîne 'birthday' en objet 'date'
+        birthday_date = datetime.strptime(birthday, '%Y-%m-%d').date()
+
         today = date.today()
         # Calculating age based on the provided birthday
-        age = today.year - birthday.year - ((today.month, today.day) < (birthday.month, birthday.day))
+        age = today.year - birthday_date.year - ((today.month, today.day) < (birthday_date.month, birthday_date.day))
 
         # Checking if the user is at least 15 years old before registration
         if age < 15:
@@ -38,5 +42,9 @@ class UsersViewset(ModelViewSet):
 
         validated_data['is_active'] = True  # Setting is_active to True for the new user
 
-        # Saving the new user instance
-        serializer.save()
+        # Checking if password is provided in request data
+        if 'password' in self.request.data:
+            password = make_password(self.request.data['password'])
+            validated_data['password'] = password  # Assigning hashed password to validated_data
+
+        serializer.save()  # Saving the new user instance

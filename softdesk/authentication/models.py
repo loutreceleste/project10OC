@@ -59,7 +59,11 @@ class User(AbstractBaseUser, PermissionsMixin):
     objects = UserManager()  # Assigning the custom UserManager to manage User objects
 
     def save(self, *args, **kwargs):
-        # Validate age when saving the user instance
+        # Convertir la chaîne 'birthday' en objet 'date' si elle est au format 'YYYY-MM-DD'
+        if isinstance(self.birthday, str):
+            self.birthday = datetime.strptime(self.birthday, '%Y-%m-%d').date()
+
+        # Valider l'âge lors de l'enregistrement de l'instance utilisateur
         if self.birthday:
             today = datetime.now().date()
             age_limit = today.replace(year=today.year - 15)
